@@ -10,6 +10,7 @@ from prefect import flow, task
 
 SOURCE_FILES = ["model_pipeline.py", "main.py", "pipeline_prefect.py"]
 MODEL_PATH = "model.joblib"
+REPO_URL = "https://github.com/Bahadine-ux/mlops.git"
 
 
 def run_cmd(cmd):
@@ -17,6 +18,14 @@ def run_cmd(cmd):
     result = subprocess.run(cmd, check=False)
     if result.returncode != 0:
         raise RuntimeError(f"Commande échouée ({result.returncode}) : {' '.join(cmd)}")
+
+
+@task(name="Récupérer le projet")
+def clone_repo(repo_url=REPO_URL, dest="projet_clone"):
+    if Path(dest).exists():
+        run_cmd(["git", "-C", dest, "pull"])
+    else:
+        run_cmd(["git", "clone", repo_url, dest])
 
 
 @task(name="Installer les dépendances")
@@ -130,6 +139,7 @@ def evaluate_flow():
 
 @flow(name="all")
 def all_flow():
+    clone_repo()
     install_dependencies()
     format_code()
     check_quality()
