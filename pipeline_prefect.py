@@ -115,6 +115,24 @@ def start_api():
     )
 
 
+@task(name="Lancer l'interface MLflow")
+def start_mlflow_ui():
+    run_cmd(
+        [
+            sys.executable,
+            "-m",
+            "mlflow",
+            "ui",
+            "--backend-store-uri",
+            "sqlite:///mlflow.db",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "5000",
+        ]
+    )
+
+
 @task(name="Nettoyage")
 def clean_task():
     for pattern in ("__pycache__", ".pytest_cache", MODEL_PATH):
@@ -161,6 +179,12 @@ def api_flow():
     start_api()
 
 
+@flow(name="mlflow")
+def mlflow_flow():
+    # Lance l'interface MLflow sur http://127.0.0.1:5000
+    start_mlflow_ui()
+
+
 @flow(name="all")
 def all_flow():
     clone_repo()
@@ -189,6 +213,7 @@ FLOWS = {
     "install": install_flow,
     "clean": clean_flow,
     "api": api_flow,
+    "mlflow": mlflow_flow,
 }
 
 

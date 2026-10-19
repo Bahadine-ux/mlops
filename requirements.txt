@@ -9,3 +9,5 @@ bandit
 pytest
 fastapi
 uvicorn
+mlflow.db
+mlruns/
