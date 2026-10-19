@@ -99,6 +99,22 @@ def evaluate_model_task(model, X_test, y_test):
     return evaluate_model(model, X_test, y_test)
 
 
+@task(name="Lancer l'API FastAPI")
+def start_api():
+    run_cmd(
+        [
+            sys.executable,
+            "-m",
+            "uvicorn",
+            "app:app",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8000",
+        ]
+    )
+
+
 @task(name="Nettoyage")
 def clean_task():
     for pattern in ("__pycache__", ".pytest_cache", MODEL_PATH):
@@ -137,6 +153,14 @@ def evaluate_flow():
     return evaluate_model_task(model, X_test, y_test)
 
 
+@flow(name="api")
+def api_flow():
+    # Entraîne le modèle s'il n'existe pas encore, puis lance l'API
+    if not Path(MODEL_PATH).exists():
+        train_flow()
+    start_api()
+
+
 @flow(name="all")
 def all_flow():
     clone_repo()
@@ -164,6 +188,7 @@ FLOWS = {
     "code": code_flow,
     "install": install_flow,
     "clean": clean_flow,
+    "api": api_flow,
 }
 
 
