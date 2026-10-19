@@ -1,0 +1,9 @@
+pandas
+scikit-learn
+joblib
+openpyxl
+prefect
+black
+flake8
+bandit
+pytest
